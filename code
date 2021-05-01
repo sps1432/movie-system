@@ -1,0 +1,163 @@
+import tkinter as tk
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+
+
+
+
+ratings_data = pd.read_csv("ratings.csv")
+movie_names = pd.read_csv("movies.csv")
+movie_data = pd.merge(ratings_data, movie_names, on='movieId')
+ratings_mean_count = pd.DataFrame(movie_data.groupby('title')['rating'].mean())
+ratings_mean_count['rating_counts'] = pd.DataFrame(movie_data.groupby('title')['rating'].count()) 
+user_movie_rating = movie_data.pivot_table(index='userId', columns='title', values='rating')
+
+
+
+
+def show1():
+    a=ratings_data.head()
+    z = tk.Label(root, text=a)
+    z.grid(row =2 , column = 0) 
+
+def show2():
+    b=movie_names.head()
+    y = tk.Label(root, text=b)
+    y.grid(row = 2, column = 0) 
+
+def show3():
+    c= movie_data.head()
+    x = tk.Label(root, text=c)
+    x.grid(row=2,column=0)
+    
+
+def show4():
+    d=movie_data.groupby('title')['rating'].mean().sort_values(ascending=False).head()
+    w = tk.Label(root, text=d)
+    w.grid(row = 2, column = 0)
+    
+def show5():
+    e=movie_data.groupby('title')['rating'].count().sort_values(ascending=False).head()
+    v = tk.Label(root, text=e)
+    v.grid(row = 2, column = 0)
+    
+def show5():
+    f=movie_data.groupby('title')['rating'].count().sort_values(ascending=False).head()
+    v = tk.Label(root, text=f)
+    v.grid(row = 2, column = 0)
+    
+def show6():
+    g=ratings_mean_count.head()
+    u = tk.Label(root, text=g)
+    u.grid(row = 2, column = 0)
+    
+def show7():
+    sns.set_style('dark')
+    %matplotlib inline
+    fig=plt.figure(figsize=(8,6))
+    plt.rcParams['patch.force_edgecolor'] = True
+    ratings_mean_count['rating_counts'].hist(bins=50)
+    plt.xlabel("Rating count of movies")
+    plt.ylabel("No. of Movies")
+    plt.title('Relationship between rating count and no of movies')
+    plt.show()
+    plt.gcf().canvas.draw()
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.get_tk_widget().grid(row=2,column=0) 
+    canvas.draw()
+    
+def show8():
+    sns.set_style('dark')
+    %matplotlib inline
+    fig1=plt.figure(figsize=(8,6))
+    plt.rcParams['patch.force_edgecolor'] = True
+    ratings_mean_count['rating'].hist(bins=50)
+    plt.xlabel("Average Rating")
+    plt.ylabel("No. of Movies")
+    plt.title('Relationship between Average rating and no of Movies')
+    plt.show()
+    plt.gcf().canvas.draw()
+    canvas2 = FigureCanvasTkAgg(fig1, master=root)
+    canvas2.get_tk_widget().grid(row=2,column=0) 
+    canvas2.draw()
+
+
+def show9():
+    %matplotlib inline
+    fig2=plt.figure(figsize=(8,6))
+    plt.rcParams['patch.force_edgecolor'] = True
+    sns.jointplot(x='rating', y='rating_counts', data=ratings_mean_count, alpha=0.4)
+    plt.gcf().canvas.draw()
+    canvas3 = FigureCanvasTkAgg(fig2, master=root)
+    canvas3.get_tk_widget().grid(row=2,column=0) 
+    canvas3.draw()
+
+def show10():
+    k=e1.get()
+    forrest_gump_ratings = user_movie_rating[k]
+    q=forrest_gump_ratings.head()
+    i = tk.Label(root, text=q)
+    i.grid(row = 2, column = 0)
+
+def show11():
+    k=e1.get()
+    forrest_gump_ratings = user_movie_rating[k]
+    movies_like_forest_gump = user_movie_rating.corrwith(forrest_gump_ratings)
+    corr_forrest_gump = pd.DataFrame(movies_like_forest_gump, columns=['Correlation'])
+    corr_forrest_gump.dropna(inplace=True)
+    corr_forrest_gump = corr_forrest_gump.join(ratings_mean_count['rating_counts'])
+    corr_forrest_gump[corr_forrest_gump ['rating_counts']>50].sort_values('Correlation', ascending=False)
+    r=corr_forrest_gump.head()
+    n = tk.Label(root, text=r)
+    n.grid(row = 2, column = 0)
+
+root = tk.Tk()
+root.title("The Intelligent Recommender System")
+root.geometry("700x900")
+background_image=tk.PhotoImage(file="bk.png")
+background_label = tk.Label(root, image=background_image)
+background_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+
+frame = tk.Frame(root,bd=5,bg="brown",relief='raised')
+frame.grid()
+frame2 = tk.Frame(root,bd=5,bg="lightblue",relief='raised')
+frame2.grid()
+
+b1= tk.Button(frame, text="Dataset1", fg="black",bg="pink",command=show1)
+b1.grid(row = 0, column = 0 )
+
+b2= tk.Button(frame, text="Dataset2", fg="black",bg="pink",command=show2)
+b2.grid( row = 0, column =1 )
+
+b3 = tk.Button(frame, text="Mergedata", fg="black",bg="pink",command=show3)
+b3.grid( row = 0, column =2 )
+
+b4 = tk.Button(frame, text="MEAN_data", fg="black",bg="pink",command=show4)
+b4.grid( row = 0, column =3 )
+
+b5 = tk.Button(frame, text="Rating_count",fg="black",bg="pink",command=show5)
+b5.grid( row = 0, column =4)
+
+b6 = tk.Button(frame, text="Show_no_of_rating", fg="black",bg="pink",command=show6)
+b6.grid( row = 0, column =5 )
+
+b7 = tk.Button(frame, text="Graph no of rating", fg="black",bg="pink",command=show7)
+b7.grid( row = 0, column =6 )
+
+b8 = tk.Button(frame, text="Graph no average rating", fg="black",bg="pink",command=show8)
+b8.grid( row = 0, column =7 )
+b9 = tk.Button(frame, text="CLEAR", fg="black",bg="red",command=show9)
+b9.grid( row = 1, column =4)
+
+tk.Label(frame2, text="Enter Movie Name Like This Moviename (Year)").grid(row=4,column=0)
+e1 = tk.Entry(frame2)
+e1.grid(row=4, column=1)
+tk.Button(frame2, text='Show Rating',fg="blue",bg="pink", command=show10).grid(row=5, column=0)
+tk.Button(frame2, text='Show Recommended Movie',fg="blue",bg="pink",command=show11).grid(row=5, column=1)
+
+root.mainloop()
